@@ -112,6 +112,14 @@
         })));
   }
 
-  const root = ReactDOM.createRoot(document.getElementById("root"));
-  root.render(React.createElement(App));
+  window.SFT_DATA_READY
+    .then(function () {
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(React.createElement(App));
+    })
+    .catch(function (err) {
+      document.getElementById("root").innerHTML =
+        '<div style="display:grid;place-items:center;height:100vh;color:#b09060;font-family:sans-serif;background:#0d0b12;font-size:14px">' +
+        'Failed to load ledger data — ' + err.message + '</div>';
+    });
 })();
