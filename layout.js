@@ -24,7 +24,7 @@
     const { FAMILIES, CHARACTERS } = data;
 
     const colorByFam = {};
-    FAMILIES.forEach((f) => (colorByFam[f.id] = f.color));
+    FAMILIES.forEach((f) => (colorByFam[f.id.toLowerCase()] = f.color));
 
     // ---- clone + normalise ------------------------------------------------
     const byId = {};
@@ -34,7 +34,7 @@
       n.partners = arr(c.partners).map((p) => (typeof p === "string" ? { id: p, type: "marriage" } : p))
         .filter((p) => p && p.id && p.id !== c.id);
       n._famKey = c.family || "_free";
-      n._color = c.family && colorByFam[c.family] ? colorByFam[c.family] : "gold";
+      n._color = c.family && colorByFam[c.family.toLowerCase()] ? colorByFam[c.family.toLowerCase()] : "gold";
       n.birthKnown = typeof c.birth === "number";
       n._birthNum = n.birthKnown ? c.birth : null;
       byId[n.id] = n;
@@ -225,7 +225,8 @@
 
     // ---- families (categories) -------------------------------------------
     const families = FAMILIES.map((f) => {
-      const members = ids.filter((id) => byId[id].family === f.id).sort((a, b) => byId[a]._birthNum - byId[b]._birthNum);
+      const fIdL = f.id.toLowerCase();
+      const members = ids.filter((id) => byId[id].family && byId[id].family.toLowerCase() === fIdL).sort((a, b) => byId[a]._birthNum - byId[b]._birthNum);
       return Object.assign({}, f, { members, minBirth: members.length ? byId[members[0]]._birthNum : null });
     }).filter((f) => f.members.length);
     if (ids.some((id) => !byId[id].family)) {
