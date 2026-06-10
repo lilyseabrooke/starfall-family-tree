@@ -34,10 +34,11 @@
     const canvasRef = useRef(null);
 
     const onPick = useCallback((id, e, jump) => {
-      if (id == null) { setSelectedId(null); return; }
+      if (id == null) { setSelectedId(null); setFilterFamily(null); return; }
       setSelectedId(id);
+      if (filterFamily && L.nodes[id] && L.nodes[id]._famKey !== filterFamily) setFilterFamily(null);
       if (jump && canvasRef.current) canvasRef.current.focusNode(id);
-    }, []);
+    }, [filterFamily, L]);
 
     const jumpTo = useCallback((id) => {
       setModalId(null); setFamilyId(null); setSelectedId(id);
@@ -45,6 +46,10 @@
     }, []);
 
     const openFamily = useCallback((id) => { setModalId(null); setFamilyId(id); }, []);
+
+    const filterByFamily = useCallback((id) => {
+      setFilterFamily((prev) => (prev === id ? null : id));
+    }, []);
     const onExpand = useCallback((id) => setModalId(id), []);
     const onFit = useCallback(() => canvasRef.current && canvasRef.current.fitView(true), []);
     const onHome = useCallback(() => canvasRef.current && canvasRef.current.home(), []);
@@ -79,7 +84,7 @@
         }),
         React.createElement(Legend, {
           show, onToggle: (k, v) => setShow((s) => Object.assign({}, s, { [k]: v })),
-          families: L.families, onFamilyKey: openFamily, filterFamily
+          families: L.families, onFamilyKey: filterByFamily, filterFamily
         }),
         React.createElement(ZoomControls, { onZoom, onFit })),
 

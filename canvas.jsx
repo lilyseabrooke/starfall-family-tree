@@ -250,6 +250,29 @@
       applyTransform(animate);
     }
 
+    // zoom to fit the active family filter
+    useEffect(() => {
+      if (!filterFamily) return;
+      const vp = viewportRef.current; if (!vp) return;
+      const members = L.order.map((id) => L.nodes[id]).filter((n) => n._famKey === filterFamily);
+      if (!members.length) return;
+      const xs = members.map((n) => n.x);
+      const ys = members.map((n) => n.y);
+      const minX = Math.min(...xs), maxX = Math.max(...xs);
+      const minY = Math.min(...ys), maxY = Math.max(...ys);
+      const r = vp.getBoundingClientRect();
+      const pad = 140;
+      const spanX = Math.max(maxX - minX, 600);
+      const spanY = Math.max(maxY - minY, 400);
+      const s = clamp(Math.min(
+        (r.width - pad * 2) / spanX,
+        (r.height - pad * 2) / spanY
+      ));
+      const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+      view.current = { s, x: r.width / 2 - cx * s, y: r.height / 2 - cy * s };
+      applyTransform(true);
+    }, [filterFamily, L, applyTransform]); // eslint-disable-line
+
     // initial view: frame ~1950 → present rather than fitting all of history
     useEffect(() => { frameFrom(1950, false); /* eslint-disable-next-line */ }, [L]);
     // reposition popover when selection changes & refresh icons

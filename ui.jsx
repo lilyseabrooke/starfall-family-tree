@@ -74,7 +74,7 @@
 
       React.createElement("div", { className: "sft-topbar-right" },
         React.createElement("div", { className: "sft-famfilter", ref: famRef },
-          React.createElement("button", { className: "sft-famfilter-btn" + (filterFamily ? " is-active" : ""), onClick: () => setOpenFam((v) => !v) },
+          React.createElement("button", { key: filterFamily ? "fam" : "all", className: "sft-famfilter-btn" + (filterFamily ? " is-active" : ""), onClick: () => setOpenFam((v) => !v) },
             activeFam ? React.createElement("span", { className: "sft-ff-dot", style: { background: colorOf(activeFam.color).light } }) : Icon("filter"),
             React.createElement("span", null, activeFam ? activeFam.name : "All families"),
             Icon("chevron-down", { className: "sft-ff-chev" })),
@@ -120,7 +120,7 @@
             React.createElement("span", { className: "sft-house-dot", style: { background: colorOf(f.color).light } }),
             React.createElement("span", { className: "sft-house-name" }, f.name),
             React.createElement("span", { className: "sft-house-count" }, f.members.length)))),
-        React.createElement("div", { className: "sft-legend-hint" }, "Tap a family for its record")));
+        React.createElement("div", { className: "sft-legend-hint" }, "Tap a family to focus · tap again to clear")));
   }
 
   // ---------------------------------------------------------- ZoomControls -
