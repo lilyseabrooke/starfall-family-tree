@@ -100,12 +100,17 @@
   }
 
   function rowToFamily(row) {
+    const find = function (key) {
+      const lk = key.toLowerCase();
+      const k = Object.keys(row).find(function (k) { return k.toLowerCase() === lk; });
+      return k ? cell(row, k) : null;
+    };
     return {
-      id:       cell(row, "id"),
-      name:     cell(row, "name"),
-      color:    cell(row, "color"),
-      knownFor: cell(row, "known for"),
-      bio:      cell(row, "bio")
+      id:       find("id"),
+      name:     find("name"),
+      color:    find("color"),
+      knownFor: find("known for"),
+      bio:      find("bio")
     };
   }
 
