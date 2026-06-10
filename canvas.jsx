@@ -159,6 +159,7 @@
     const popoverRef = useRef(null);
     const selRef = useRef(selectedId);
     selRef.current = selectedId;
+    const draggedRef = useRef(false);
 
     const applyTransform = useCallback((animate) => {
       const w = worldRef.current; if (!w) return;
@@ -262,8 +263,8 @@
       const minY = Math.min(...ys), maxY = Math.max(...ys);
       const r = vp.getBoundingClientRect();
       const pad = 140;
-      const spanX = Math.max(maxX - minX, 600);
-      const spanY = Math.max(maxY - minY, 400);
+      const spanX = Math.max(maxX - minX, 900);
+      const spanY = Math.max(maxY - minY, 600);
       const s = clamp(Math.min(
         (r.width - pad * 2) / spanX,
         (r.height - pad * 2) / spanY
@@ -311,7 +312,7 @@
       const down = (e) => {
         if (e.button !== 0) return;
         if (e.target.closest(".sft-node")) return;
-        dragging = true; moved = false;
+        dragging = true; moved = false; draggedRef.current = false;
         sx = e.clientX; sy = e.clientY; ox = view.current.x; oy = view.current.y;
         vp.classList.add("is-grabbing");
       };
@@ -319,7 +320,7 @@
         if (!dragging) return;
         view.current.x = ox + (e.clientX - sx);
         view.current.y = oy + (e.clientY - sy);
-        if (Math.abs(e.clientX - sx) + Math.abs(e.clientY - sy) > 3) moved = true;
+        if (Math.abs(e.clientX - sx) + Math.abs(e.clientY - sy) > 3) { moved = true; draggedRef.current = true; }
         applyTransform(false);
       };
       const up = () => { dragging = false; vp.classList.remove("is-grabbing"); };
@@ -401,7 +402,7 @@
 
     const N = L.nodes;
     return (
-      React.createElement("div", { className: "sft-viewport", ref: viewportRef, onClick: () => onPick(null) },
+      React.createElement("div", { className: "sft-viewport", ref: viewportRef, onClick: () => { if (!draggedRef.current) onPick(null); } },
         React.createElement("div", { className: "sft-world", ref: worldRef },
           // decade gridlines
           React.createElement("div", { className: "sft-grid" },
