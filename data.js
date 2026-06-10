@@ -1,33 +1,21 @@
 /* ===========================================================================
    Starfall Family Tree — dataset
-   Characters are loaded live from Google Sheets (CSV export).
-   Families remain hardcoded here (they carry blurb text not in the sheet).
+   Both characters and families are loaded live from Google Sheets (CSV export).
 
-   Sheet columns: ID, Name, Prefix, Pronouns, Title, Family, Birth, Death,
-   Portrait, Bio, Parents, Partners, Academy, Magic, Region, Creature Type
+   Characters sheet columns: ID, Name, Prefix, Pronouns, Title, Family, Birth,
+   Death, Portrait, Bio, Parents, Partners, Academy, Magic, Region, Creature Type
    Multi-value fields (Parents, Partners, Magic) use semicolon separators.
    Partners format: "id (type)" e.g. "emily-argon (marriage)".
+
+   Families sheet columns: id, name, color, known for, bio
+   All fields except id are optional — missing fields are left null.
+   Families referenced by characters but absent from the Families sheet are
+   silently hidden (they won't appear in the legend or filter).
    =========================================================================== */
 (function () {
   const SHEET_ID = "12pocjObSluK--b8ZdFnBljn01QVUbZsoSHF3KlnDb7I";
   const CSV_URL = "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/export?format=csv";
-
-  const FAMILIES = [
-    { id: "argon-core", name: "The Argon Family", color: "crimson",
-      blurb: "The ancient core line — founders of chronomancy and, with it, the Academy itself, and authors of a hundred-year blood hex against the Mars family. Old, powerful, and rarely kind." },
-    { id: "argon-split", name: "The Argon Breakaway", color: "plum",
-      blurb: "Damien Argon's faction, which formally declared itself the true Argon family in 2015. The two lines have been vying for the name ever since." },
-    { id: "whisperkeep", name: "The Whisperkeep Family", color: "teal",
-      blurb: "Diviners without peer — the name is synonymous with the field. Frilly, sweet-toothed, and never to be underestimated." },
-    { id: "Cloudless", name: "The Cloudless Family", color: "azure",
-      blurb: "Founded by the chronomancer who rescued the Academy during the Basilisk Incident; now a foundation devoted to sustainable magic." },
-    { id: "Burnwicke", name: "The Burnwicke Family", color: "forest",
-      blurb: "A divination line lately better known for very nearly unmaking all magic to break a hex — and for an unruly House team." },
-    { id: "Mars", name: "The Mars Family", color: "rust",
-      blurb: "A family that carried a century-old generational hex laid by the Argons, severed only recently by stubborn love and chronomancy." },
-    { id: "rook", name: "The Rook Family", color: "slate",
-      blurb: "A line that produced at least one arcane hitman, working for years behind the cover of a telekinesis professorship." }
-  ];
+  const FAMILIES_URL = "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/export?format=csv&sheet=Families";
 
   // ---- CSV parser (RFC 4180) -----------------------------------------------
   function parseCSV(text) {
@@ -111,6 +99,16 @@
     return parts.length === 1 ? parts[0] : parts;
   }
 
+  function rowToFamily(row) {
+    return {
+      id:       cell(row, "id"),
+      name:     cell(row, "name"),
+      color:    cell(row, "color"),
+      knownFor: cell(row, "known for"),
+      bio:      cell(row, "bio")
+    };
+  }
+
   function rowToCharacter(row) {
     return {
       id:            cell(row, "ID"),
@@ -133,13 +131,18 @@
   }
 
   // ---- fetch & expose -------------------------------------------------------
-  window.SFT_DATA_READY = fetch(CSV_URL)
-    .then(function (r) {
-      if (!r.ok) throw new Error("Sheet fetch failed (" + r.status + ")");
+  window.SFT_DATA_READY = Promise.all([
+    fetch(CSV_URL).then(function (r) {
+      if (!r.ok) throw new Error("Characters sheet fetch failed (" + r.status + ")");
+      return r.text();
+    }),
+    fetch(FAMILIES_URL).then(function (r) {
+      if (!r.ok) throw new Error("Families sheet fetch failed (" + r.status + ")");
       return r.text();
     })
-    .then(function (text) {
-      const CHARACTERS = parseCSV(text).map(rowToCharacter).filter(function (c) { return !!c.id; });
-      window.SFT_DATA = { FAMILIES, CHARACTERS };
-    });
+  ]).then(function (results) {
+    const CHARACTERS = parseCSV(results[0]).map(rowToCharacter).filter(function (c) { return !!c.id; });
+    const FAMILIES = parseCSV(results[1]).map(rowToFamily).filter(function (f) { return !!f.id; });
+    window.SFT_DATA = { FAMILIES, CHARACTERS };
+  });
 })();

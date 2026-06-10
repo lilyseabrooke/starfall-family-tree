@@ -231,7 +231,7 @@
     if (ids.some((id) => !byId[id].family)) {
       const members = ids.filter((id) => !byId[id].family).sort((a, b) => byId[a]._birthNum - byId[b]._birthNum);
       families.push({ id: "_free", name: "Unaffiliated", color: "gold",
-        blurb: "Figures who belong to no family line — by choice, by chance, or because no one ever wrote it down.",
+        bio: "Figures who belong to no family line — by choice, by chance, or because no one ever wrote it down.",
         members, minBirth: byId[members[0]]._birthNum });
     }
 
