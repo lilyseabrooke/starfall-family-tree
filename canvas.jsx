@@ -329,6 +329,55 @@
       return () => { vp.removeEventListener("mousedown", down); window.removeEventListener("mousemove", move); window.removeEventListener("mouseup", up); };
     }, [applyTransform]);
 
+    // touch: swipe to pan, pinch to zoom
+    useEffect(() => {
+      const vp = viewportRef.current; if (!vp) return;
+      let last = null;
+
+      const dist = (a, b) => Math.hypot(b.clientX - a.clientX, b.clientY - a.clientY);
+      const mid = (a, b, r) => ({ x: (a.clientX + b.clientX) / 2 - r.left, y: (a.clientY + b.clientY) / 2 - r.top });
+
+      const onStart = (e) => { last = Array.from(e.touches); };
+
+      const onMove = (e) => {
+        if (!last) return;
+        e.preventDefault();
+        const cur = Array.from(e.touches);
+        const r = vp.getBoundingClientRect();
+
+        if (cur.length === 1 && last.length === 1) {
+          view.current.x += cur[0].clientX - last[0].clientX;
+          view.current.y += cur[0].clientY - last[0].clientY;
+          applyTransform(false);
+        } else if (cur.length >= 2) {
+          const prev2 = last.length >= 2 ? last : [last[0], cur[1]];
+          const factor = dist(cur[0], cur[1]) / Math.max(dist(prev2[0], prev2[1]), 1);
+          const pm = mid(prev2[0], prev2[1], r);
+          const cm = mid(cur[0], cur[1], r);
+          const v = view.current;
+          const ns = clamp(v.s * factor);
+          const k = ns / v.s;
+          view.current = { s: ns, x: cm.x - (pm.x - v.x) * k, y: cm.y - (pm.y - v.y) * k };
+          applyTransform(false);
+        }
+
+        last = cur;
+      };
+
+      const onEnd = (e) => { last = e.touches.length ? Array.from(e.touches) : null; };
+
+      vp.addEventListener("touchstart", onStart, { passive: true });
+      vp.addEventListener("touchmove", onMove, { passive: false });
+      vp.addEventListener("touchend", onEnd, { passive: true });
+      vp.addEventListener("touchcancel", onEnd, { passive: true });
+      return () => {
+        vp.removeEventListener("touchstart", onStart);
+        vp.removeEventListener("touchmove", onMove);
+        vp.removeEventListener("touchend", onEnd);
+        vp.removeEventListener("touchcancel", onEnd);
+      };
+    }, [applyTransform]);
+
     // ---- derive dim / accent sets from filter + query + hover/selection ----
     const q = (query || "").trim().toLowerCase();
     let dimSet = null;     // ids that are "active" (rest dimmed)
