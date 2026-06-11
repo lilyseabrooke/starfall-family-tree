@@ -120,7 +120,7 @@
   const Node = memo(function Node({ n, dim, selected, onPick, onHover }) {
     const h = colorOf(n._color);
     const deceased = n.death != null;
-    const beast = n.creature_type === "beast";
+    const beast = n.creature_type != null && n.creature_type !== "human";
     return (
       React.createElement("button", {
         className: "sft-node" + (selected ? " is-selected" : "") + (dim ? " is-dim" : "") + (deceased ? " is-deceased" : "") + (beast ? " is-beast" : ""),
