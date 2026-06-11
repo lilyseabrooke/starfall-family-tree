@@ -260,6 +260,7 @@ html, body { height: 100%; margin: 0; }
 .sft-legend-swatch.sw-descent { border-top: 2px solid color-mix(in oklab, var(--gold-600) 70%, var(--ink-600)); }
 .sft-legend-swatch.sw-union { border-top: 2px solid var(--gold-400); position: relative; }
 .sft-legend-swatch.sw-union::after { content: ""; position: absolute; top: -4px; left: 50%; transform: translateX(-50%) rotate(45deg); width: 6px; height: 6px; background: var(--gold-400); }
+.sft-legend-swatch.sw-bond { border-top: 1.8px dashed var(--plum-300); }
 .sft-legend-swatch.sw-sibling { border-top: 2px dashed color-mix(in oklab, var(--parchment-200) 45%, transparent); }
 .sft-legend-label { font-family: var(--font-sans); font-size: var(--text-sm); color: var(--text-body); margin-right: auto; }
 .sft-legend-houses { display: flex; flex-direction: column; gap: var(--space-1); }

@@ -97,6 +97,7 @@
     const rows = [
       { key: "descent", label: "Descent", swatch: "descent" },
       { key: "marriage", label: "Partnerships", swatch: "union" },
+      { key: "bond", label: "Creature Bonds", swatch: "bond" },
       { key: "sibling", label: "Siblings", swatch: "sibling" }
     ];
     if (!open) {

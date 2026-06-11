@@ -95,14 +95,16 @@
             className: "sft-edge sft-edge--sibling", style: { opacity: op * 0.9 }
           });
         }),
-        // marriages (drawn last → on top of descent origins)
-        show.marriage && L.marriages.map((m, i) => {
+        // marriages / creature bonds (drawn last → on top of descent origins)
+        L.marriages.map((m, i) => {
+          const isBond = m.type === "creature-bond";
+          if (isBond ? !show.bond : !show.marriage) return null;
           const a = N[m.a], b = N[m.b];
           const op = edgeOpacity(m.a, m.b);
           const acc = isAccent(m.a, m.b);
           const cls = "sft-edge sft-edge--union"
             + (m.type === "partnership" ? " is-partnership" : "")
-            + (m.type === "creature-bond" ? " is-bond" : "")
+            + (isBond ? " is-bond" : "")
             + (m.type === "widowed" ? " is-widowed" : "")
             + (acc ? " is-accent" : "");
           const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;

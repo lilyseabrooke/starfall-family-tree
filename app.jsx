@@ -30,7 +30,7 @@
     const [familyId, setFamilyId] = useState(null);
     const [query, setQuery] = useState("");
     const [filterFamily, setFilterFamily] = useState(null);
-    const [show, setShow] = useState({ descent: true, marriage: true, sibling: false });
+    const [show, setShow] = useState({ descent: true, marriage: true, bond: true, sibling: false });
     const canvasRef = useRef(null);
 
     const onPick = useCallback((id, e, jump) => {
